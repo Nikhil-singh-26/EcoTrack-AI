@@ -85,3 +85,7 @@ server.listen(PORT, () => {
 });
 
 module.exports = { app, server, io };
+
+app.get("/", (req, res) => {
+  res.send("EcoTrack AI Backend Running 🚀");
+});
