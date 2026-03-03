@@ -16,11 +16,17 @@ const adminRoutes = require('./routes/admin.routes');
 
 const app = express();
 const server = http.createServer(app);
+
+// Express CORS
+app.use(cors({
+  origin: process.env.CLIENT_URL || "http://localhost:3000",
+  credentials: true
+}));
+
+// Socket.io CORS
 const io = new Server(server, {
   cors: {
-    origin: process.env.NODE_ENV === 'production' 
-      ? 'https://yourdomain.com' 
-      : 'http://localhost:3000',
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
     credentials: true
   }
 });
