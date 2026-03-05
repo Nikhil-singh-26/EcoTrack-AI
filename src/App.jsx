@@ -8,6 +8,7 @@ import Devices from './pages/Devices'
 import Insights from './pages/Insights'
 import Profile from './pages/Profile'
 import Admin from './pages/Admin'
+import Leaderboard from './pages/Leaderboard'
 import LoadingSpinner from './components/LoadingSpinner'
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="devices" element={<Devices />} />
         <Route path="insights" element={<Insights />} />
+        <Route path="leaderboard" element={<Leaderboard />} />
         <Route path="profile" element={<Profile />} />
         {user?.role === 'admin' && (
           <Route path="admin" element={<Admin />} />

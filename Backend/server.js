@@ -15,7 +15,10 @@ const deviceRoutes = require('./routes/device.routes');
 const energyRoutes = require('./routes/energy.routes');
 const adminRoutes = require('./routes/admin.routes');
 const insightsRoutes = require('./routes/insights.routes'); // New
-const aiRoutes = require('./routes/ai.routes'); // New
+const aiRoutesOld = require('./routes/ai.routes'); // New
+const aiRoutesModular = require('./modules/ai/ai.routes'); // Hackathon Feature 1
+const analyticsRoutes = require('./modules/energy/energy.analytics.routes'); // Hackathon Feature 2, 4, 8
+const rewardsRoutes = require('./routes/rewards.routes'); // Hackathon Feature 6
 
 const app = express();
 const server = http.createServer(app);
@@ -74,11 +77,17 @@ app.use('/api/users', userRoutes);
 app.use('/api/devices', deviceRoutes);
 app.use('/api/energy', energyRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api/insights', insightsRoutes); // New
-app.use('/api/ai', aiRoutes); // New
+app.use('/api/insights', insightsRoutes); // AI Report
+app.use('/api/ai/v1', aiRoutesOld); // Old Copilot (OpenRouter)
+app.use('/api/ai', aiRoutesModular); // Modular Copilot (Rule-based)
+app.use('/api/energy/analytics', analyticsRoutes); 
+app.use('/api/rewards', rewardsRoutes);
 
 const anomalyRoutes = require("./modules/energy/energy.anomaly.routes");
 app.use("/api/energy", anomalyRoutes);
+
+const carbonRoutes = require("./modules/energy/carbon.routes");
+app.use("/api/energy", carbonRoutes);
 
 // WebSocket for real-time updates
 io.on('connection', (socket) => {

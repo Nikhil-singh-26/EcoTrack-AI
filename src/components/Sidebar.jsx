@@ -8,7 +8,8 @@ import {
   FaCog,
   FaLeaf,
   FaTachometerAlt,
-  FaUsers
+  FaUsers,
+  FaTrophy // Added FaTrophy
 } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 
@@ -19,6 +20,7 @@ const Sidebar = () => {
     { path: '/dashboard', name: 'Dashboard', icon: FaTachometerAlt },
     { path: '/devices', name: 'Devices', icon: FaMicrochip },
     { path: '/insights', name: 'Insights', icon: FaChartLine },
+    { path: '/leaderboard', name: 'Leaderboard', icon: FaTrophy },
     { path: '/profile', name: 'Profile', icon: FaUser },
     ...(user?.role === 'admin' ? [{ path: '/admin', name: 'Admin', icon: FaUsers }] : []),
   ];
