@@ -15,6 +15,7 @@ const deviceRoutes = require('./routes/device.routes');
 const energyRoutes = require('./routes/energy.routes');
 const adminRoutes = require('./routes/admin.routes');
 const insightsRoutes = require('./routes/insights.routes'); // New
+const aiRoutes = require('./routes/ai.routes'); // New
 
 const app = express();
 const server = http.createServer(app);
@@ -74,6 +75,10 @@ app.use('/api/devices', deviceRoutes);
 app.use('/api/energy', energyRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/insights', insightsRoutes); // New
+app.use('/api/ai', aiRoutes); // New
+
+const anomalyRoutes = require("./modules/energy/energy.anomaly.routes");
+app.use("/api/energy", anomalyRoutes);
 
 // WebSocket for real-time updates
 io.on('connection', (socket) => {
