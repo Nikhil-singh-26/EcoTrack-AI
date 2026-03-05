@@ -33,6 +33,4 @@ router.get('/carbon-footprint', protect, getCarbonFootprint);
 // Simulate IoT data
 router.post('/simulate', protect, simulateData);
 
-router.post("/predict-bill", predictBill);
-
 module.exports = router;
