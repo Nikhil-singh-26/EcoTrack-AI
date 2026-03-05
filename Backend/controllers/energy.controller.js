@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const EnergyReading = require('../models/EnergyReading');
 const Device = require('../models/Device');
 const Alert = require('../models/Alert');
@@ -151,8 +152,8 @@ const predictBill = async (req, res) => {
     const predictedDailyAvg = avgConsumption + (trend * 15); // Adjust for mid-point
     const predictedMonthly = predictedDailyAvg * 30;
     
-    // Calculate cost (assuming $0.12 per kWh)
-    const ratePerKwh = 0.12;
+    // Calculate cost using environment variable
+    const ratePerKwh = parseFloat(process.env.ELECTRICITY_RATE) || 0.12;
     const predictedBill = predictedMonthly * ratePerKwh;
     
     // Calculate confidence based on data consistency
@@ -298,15 +299,158 @@ const simulateData = async (req, res) => {
     
     // Emit real-time update via WebSocket
     const io = req.app.get('io');
-    io.emit('energy-update', {
+    const updatePayload = {
       userId,
       deviceId,
       reading
-    });
+    };
+
+    // Legacy support
+    io.emit('energy-update', updatePayload);
+    // New naming convention
+    io.emit('energy:update', updatePayload);
+    // Notify leaderboard listeners that ranking might have changed
+    io.emit('leaderboard:update');
     
     res.json({
       success: true,
       data: reading
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+
+// @desc    Get detailed energy stats using aggregation
+// @route   GET /api/energy/stats
+// @access  Private
+const getEnergyStats = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const now = new Date();
+    
+    // Daily (Last 24h)
+    const dayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    // Weekly (Last 7d)
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    // Monthly (Last 30d)
+    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    const stats = await EnergyReading.aggregate([
+      { $match: { userId: new mongoose.Types.ObjectId(userId) } },
+      {
+        $facet: {
+          daily: [
+            { $match: { timestamp: { $gte: dayAgo } } },
+            { $group: { _id: null, total: { $sum: '$consumption' }, cost: { $sum: '$cost' } } }
+          ],
+          weekly: [
+            { $match: { timestamp: { $gte: weekAgo } } },
+            { $group: { _id: null, total: { $sum: '$consumption' }, cost: { $sum: '$cost' } } }
+          ],
+          monthly: [
+            { $match: { timestamp: { $gte: monthAgo } } },
+            { $group: { _id: null, total: { $sum: '$consumption' }, cost: { $sum: '$cost' } } }
+          ],
+          deviceRanking: [
+            { $match: { timestamp: { $gte: monthAgo } } },
+            {
+              $group: {
+                _id: '$deviceId',
+                totalConsumption: { $sum: '$consumption' }
+              }
+            },
+            { $sort: { totalConsumption: -1 } },
+            { $limit: 10 },
+            {
+              $lookup: {
+                from: 'devices',
+                localField: '_id',
+                foreignField: '_id',
+                as: 'deviceInfo'
+              }
+            },
+            { $unwind: { path: '$deviceInfo', preserveNullAndEmptyArrays: true } },
+            {
+              $project: {
+                name: '$deviceInfo.name',
+                type: '$deviceInfo.type',
+                totalConsumption: 1
+              }
+            }
+          ]
+        }
+      }
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        usage: {
+          daily: stats[0].daily[0] || { total: 0, cost: 0 },
+          weekly: stats[0].weekly[0] || { total: 0, cost: 0 },
+          monthly: stats[0].monthly[0] || { total: 0, cost: 0 }
+        },
+        deviceRanking: stats[0].deviceRanking
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// @desc    Get device ranking by energy consumption
+// @route   GET /api/energy/devices-ranking
+// @access  Private
+const getDeviceRanking = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const monthAgo = new Date();
+    monthAgo.setDate(monthAgo.getDate() - 30);
+
+    const ranking = await EnergyReading.aggregate([
+      {
+        $match: {
+          userId: new mongoose.Types.ObjectId(userId),
+          timestamp: { $gte: monthAgo }
+        }
+      },
+      {
+        $group: {
+          _id: '$deviceId',
+          totalKwh: { $sum: '$consumption' },
+          totalCost: { $sum: '$cost' },
+          totalCarbon: { $sum: '$carbonFootprint' }
+        }
+      },
+      { $sort: { totalKwh: -1 } },
+      {
+        $lookup: {
+          from: 'devices',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'device'
+        }
+      },
+      { $unwind: { path: '$device', preserveNullAndEmptyArrays: true } },
+      {
+        $project: {
+          name: '$device.name',
+          type: '$device.type',
+          room: '$device.room',
+          totalKwh: 1,
+          totalCost: 1,
+          totalCarbon: 1
+        }
+      }
+    ]);
+
+    res.json({
+      success: true,
+      data: ranking
     });
   } catch (error) {
     console.error(error);
@@ -319,5 +463,7 @@ module.exports = {
   getChartData,
   predictBill,
   getCarbonFootprint,
-  simulateData
+  simulateData,
+  getEnergyStats,
+  getDeviceRanking
 };

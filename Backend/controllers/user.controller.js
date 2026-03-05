@@ -1,27 +1,82 @@
+const mongoose = require('mongoose');
 const User = require('../models/User');
+const EnergyReading = require('../models/EnergyReading');
+const redisClient = require('../utils/redisClient');
 
-// @desc    Get leaderboard (top users by energy saved)
+// @desc    Get leaderboard (top users by lowest carbon footprint)
 // @route   GET /api/users/leaderboard
 // @access  Private
 const getLeaderboard = async (req, res) => {
-  try {
-    // Fetch top 10 users based on totalEnergySaved (descending)
-    const users = await User.find({ role: 'user' })
-      .select('name totalEnergySaved rank')
-      .sort({ totalEnergySaved: -1 })
-      .limit(10);
+  const cacheKey = 'leaderboard';
+  const cacheTTL = 300; // 5 minutes
 
-    // If rank is not set, assign based on order
-    const leaderboard = users.map((user, index) => ({
-      _id: user._id,
-      name: user.name,
-      totalEnergySaved: user.totalEnergySaved || 0,
-      rank: user.rank || index + 1
+  try {
+    // 1. Try to get from Cache
+    if (redisClient.isOpen) {
+      try {
+        const cachedData = await redisClient.get(cacheKey);
+        if (cachedData) {
+          return res.json({
+            success: true,
+            data: JSON.parse(cachedData),
+            source: 'cache'
+          });
+        }
+      } catch (cacheErr) {
+        console.warn('⚠️ Redis GET Error:', cacheErr.message);
+      }
+    }
+
+    // 2. Fallback to MongoDB
+    const monthAgo = new Date();
+    monthAgo.setDate(monthAgo.getDate() - 30);
+
+    const rankings = await EnergyReading.aggregate([
+      { $match: { timestamp: { $gte: monthAgo } } },
+      {
+        $group: {
+          _id: '$userId',
+          totalCarbon: { $sum: '$carbonFootprint' },
+          totalSavings: { $sum: '$consumption' }
+        }
+      },
+      { $sort: { totalCarbon: 1 } },
+      { $limit: 10 },
+      {
+        $lookup: {
+          from: 'users',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'userDetails'
+        }
+      },
+      { $unwind: '$userDetails' },
+      {
+        $project: {
+          name: '$userDetails.name',
+          totalCarbon: 1,
+          totalSavings: 1,
+          rank: { $literal: 0 }
+        }
+      }
+    ]);
+
+    const leaderboard = rankings.map((user, index) => ({
+      ...user,
+      rank: index + 1
     }));
+
+    // 3. Store in Cache (Background)
+    if (redisClient.isOpen) {
+      redisClient.setEx(cacheKey, cacheTTL, JSON.stringify(leaderboard)).catch(err => {
+        console.warn('⚠️ Redis SET Error:', err.message);
+      });
+    }
 
     res.json({
       success: true,
-      data: leaderboard
+      data: leaderboard,
+      source: 'database'
     });
   } catch (error) {
     console.error('Get leaderboard error:', error);
