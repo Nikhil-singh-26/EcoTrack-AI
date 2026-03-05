@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const http = require('http');
 const { Server } = require('socket.io');
+const config = require('./config/env'); // Triggers validation
 require('dotenv').config();
 
 // Import routes
