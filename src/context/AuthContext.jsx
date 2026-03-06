@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { initializeNotifications } from '../utils/notifications';
 
 const AuthContext = createContext();
 
@@ -56,6 +57,10 @@ export const AuthProvider = ({ children }) => {
       setToken(token);
       setUser(user);
       toast.success('Logged in successfully!');
+      
+      // Initialize notifications after successful login
+      initializeNotifications();
+      
       return { success: true };
     } catch (error) {
       toast.error(error.response?.data?.message || 'Login failed');
