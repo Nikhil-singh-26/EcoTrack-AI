@@ -1,0 +1,45 @@
+{
+  "name": "EcoTrack AI",
+  "short_name": "EcoTrack",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#10b981",
+  "icons": [
+     {
+      "src": "/icons/icon-72.jpeg",
+      "sizes": "72x72",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/icons/icon-96.jpeg",
+      "sizes": "96x96",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/icons/icon-128.jpeg",
+      "sizes": "128x128",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/icons/icon-144.jpeg",
+      "sizes": "144x144",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/icons/icon-152.jpeg",
+      "sizes": "152x152",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/icons/icon-192.jpeg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/icons/icon-512.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
