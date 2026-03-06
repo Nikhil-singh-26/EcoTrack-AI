@@ -11,9 +11,12 @@ const Devices = () => {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingDevice, setEditingDevice] = useState(null);
+  const [now, setNow] = useState(new Date());
 
   useEffect(() => {
     fetchDevices();
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
   }, []);
 
   const fetchDevices = async () => {
@@ -40,14 +43,35 @@ const Devices = () => {
 
   const handleToggle = async (id, currentStatus) => {
     try {
-      const res = await api.patch(`/api/devices/${id}/toggle`);
+      const isCurrentlyOn = currentStatus === 'on';
+      const endpoint = isCurrentlyOn ? `/api/devices/${id}/off` : `/api/devices/${id}/on`;
+      
+      let payload = {};
+      if (isCurrentlyOn) {
+         const device = devices.find(d => d._id === id);
+         const secondsOn = device.lastTurnedOn ? Math.floor((new Date() - new Date(device.lastTurnedOn)) / 1000) : 0;
+         payload = { usageTime: secondsOn };
+      }
+
+      const res = await api.post(endpoint, payload);
       setDevices(devices.map(d => 
-        d._id === id ? { ...d, status: res.data.data.status } : d
+        d._id === id ? { ...d, ...res.data.data } : d
       ));
       toast.success(`Device turned ${res.data.data.status}`);
     } catch (error) {
       toast.error('Failed to toggle device');
     }
+  };
+
+  const getActiveTime = (device) => {
+    let totalSeconds = device.totalUsageTime || 0;
+    if (device.status === 'on' && device.lastTurnedOn) {
+      totalSeconds += Math.max(0, Math.floor((now - new Date(device.lastTurnedOn)) / 1000));
+    }
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = Math.floor(totalSeconds % 60);
+    return `${h}h ${m}m ${s}s`;
   };
 
   if (loading) return <LoadingSpinner />;
@@ -95,6 +119,7 @@ const Devices = () => {
               <p className="text-sm"><span className="font-medium">Power:</span> {device.powerRating} W</p>
               <p className="text-sm"><span className="font-medium">Room:</span> {device.room}</p>
               <p className="text-sm"><span className="font-medium">Today's usage:</span> {device.todayUsage?.toFixed(2) || 0} kWh</p>
+              <p className="text-sm"><span className="font-medium">Total On Time:</span> <span className="font-mono text-primary-600 font-semibold">{getActiveTime(device)}</span></p>
             </div>
 
             <div className="mt-4 flex justify-end space-x-2">

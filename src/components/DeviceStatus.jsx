@@ -7,9 +7,13 @@ import toast from 'react-hot-toast';
 const DeviceStatus = () => {
   const [devices, setDevices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [simulating, setSimulating] = useState(null);
+  const [now, setNow] = useState(new Date());
 
   useEffect(() => {
     fetchDevices();
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
   }, []);
 
   const fetchDevices = async () => {
@@ -25,9 +29,19 @@ const DeviceStatus = () => {
 
   const toggleDevice = async (id, currentStatus) => {
     try {
-      const res = await api.patch(`/api/devices/${id}/toggle`);
+      const isCurrentlyOn = currentStatus === 'on';
+      const endpoint = isCurrentlyOn ? `/api/devices/${id}/off` : `/api/devices/${id}/on`;
+      
+      let payload = {};
+      if (isCurrentlyOn) {
+         const device = devices.find(d => d._id === id);
+         const secondsOn = device.lastTurnedOn ? Math.floor((new Date() - new Date(device.lastTurnedOn)) / 1000) : 0;
+         payload = { usageTime: secondsOn };
+      }
+
+      const res = await api.post(endpoint, payload);
       setDevices(devices.map(d => 
-        d._id === id ? { ...d, status: res.data.data.status } : d
+        d._id === id ? { ...d, ...res.data.data } : d
       ));
       toast.success(`Device turned ${res.data.data.status}`);
     } catch (error) {
@@ -35,12 +49,28 @@ const DeviceStatus = () => {
     }
   };
 
+  const getActiveTime = (device) => {
+    let totalSeconds = device.totalUsageTime || 0;
+    if (device.status === 'on' && device.lastTurnedOn) {
+      totalSeconds += Math.max(0, Math.floor((now - new Date(device.lastTurnedOn)) / 1000));
+    }
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = Math.floor(totalSeconds % 60);
+    // return compact time since it's a tight layout
+    return `${h}h ${m}m ${s}s`;
+  };
+
   const simulateDevice = async (id) => {
+    setSimulating(id);
     try {
       await api.post('/api/energy/simulate', { deviceId: id, hours: 1 });
       toast.success('Simulation data added');
+      window.dispatchEvent(new Event('refreshDashboard'));
     } catch (error) {
       toast.error('Simulation failed');
+    } finally {
+      setSimulating(null);
     }
   };
 
@@ -65,15 +95,19 @@ const DeviceStatus = () => {
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 {device.powerRating} W · {device.room}
               </p>
+              <p className="text-[10px] text-primary-600 font-mono font-bold mt-1">
+                Time On: {getActiveTime(device)}
+              </p>
             </div>
           </div>
           <div className="flex items-center space-x-2">
             <button
               onClick={() => simulateDevice(device._id)}
-              className="p-2 text-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded hover:bg-blue-200"
+              disabled={simulating === device._id}
+              className="p-2 text-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 rounded hover:bg-blue-200 disabled:opacity-50"
               title="Simulate usage"
             >
-              Simulate
+              {simulating === device._id ? 'Simulating...' : 'Simulate'}
             </button>
             <button
               onClick={() => toggleDevice(device._id, device.status)}

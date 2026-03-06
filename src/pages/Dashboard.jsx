@@ -5,6 +5,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   BarChart, Bar, Cell
 } from 'recharts';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import SummaryCard from '../components/summarycard';
 import CarbonImpactCard from '../components/CarbonImpactCard';
@@ -19,9 +20,14 @@ const Dashboard = () => {
   const [scoreData, setScoreData] = useState(null);
   const [rewards, setRewards] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchAllData();
+
+    const handleRefresh = () => fetchAllData();
+    window.addEventListener('refreshDashboard', handleRefresh);
+    return () => window.removeEventListener('refreshDashboard', handleRefresh);
   }, []);
 
   const fetchAllData = async () => {
@@ -53,6 +59,7 @@ const Dashboard = () => {
   );
 
   const dailyUsage = stats?.usage?.daily?.total || 0;
+  const hasData = dailyUsage > 0 || (analytics?.averageWeeklyUsage && analytics?.averageWeeklyUsage > 0);
   
   // Mock chart data for Recharts (Feature 3)
   const chartData = [
@@ -88,31 +95,38 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Summary Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <SummaryCard 
-          title="Avg Daily (Weekly)" 
-          value={`${analytics?.averageWeeklyUsage || 0} kWh`} 
-          icon={<FaBolt />} 
-        />
-        <SummaryCard 
-          title="Estimated Bill" 
-          value={`$${analytics?.estimatedMonthlyBill || 0}`} 
-          icon={<FaChartLine />} 
-        />
-        <SummaryCard 
-          title="Peak Usage Day" 
-          value={analytics?.highestUsageDay || 'N/A'} 
-          icon={<FaExclamationTriangle />} 
-        />
-        <SummaryCard 
-          title="Current Streak" 
-          value={`${rewards?.streak || 0} Days`} 
-          icon={<FaLeaf />} 
-        />
-      </div>
+      {!hasData ? (
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-8 text-center shadow-sm">
+          <FaBolt className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">No energy data available yet</h3>
+          <p className="mt-2 text-gray-500 dark:text-gray-400">Try running a simulation from your devices to see insights.</p>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <SummaryCard 
+              title="Avg Daily (Weekly)" 
+              value={`${analytics?.averageWeeklyUsage || 0} kWh`} 
+              icon={<FaBolt />} 
+            />
+            <SummaryCard 
+              title="Estimated Bill" 
+              value={`$${analytics?.estimatedMonthlyBill || 0}`} 
+              icon={<FaChartLine />} 
+            />
+            <SummaryCard 
+              title="Peak Usage Day" 
+              value={analytics?.highestUsageDay || 'N/A'} 
+              icon={<FaExclamationTriangle />} 
+            />
+            <SummaryCard 
+              title="Current Streak" 
+              value={`${rewards?.streak || 0} Days`} 
+              icon={<FaLeaf />} 
+            />
+          </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
         {/* Main Trends - Recharts (Feature 3) */}
         <div className="lg:col-span-8 flex flex-col gap-6">
           <div className="card">
@@ -177,7 +191,9 @@ const Dashboard = () => {
                     </div>
                 </div>
                 <div className="mt-8">
-                    <button className="w-full py-2 bg-white text-primary-600 font-bold rounded-lg shadow-lg hover:bg-gray-100 transition-colors">
+                    <button 
+                        onClick={() => navigate('/leaderboard')}
+                        className="w-full py-2 bg-white text-primary-600 font-bold rounded-lg shadow-lg hover:bg-gray-100 transition-colors">
                         View Challenges
                     </button>
                 </div>
@@ -207,11 +223,14 @@ const Dashboard = () => {
             </p>
           </div>
         </div>
-      </div>
+        </div>
+        </>
+      )}
 
       <AICopilotPanel />
     </div>
   );
 };
+
 
 export default Dashboard;

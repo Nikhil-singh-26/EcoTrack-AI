@@ -7,7 +7,9 @@ const {
   createDevice,
   updateDevice,
   deleteDevice,
-  toggleDevice
+  toggleDevice,
+  deviceOn,
+  deviceOff
 } = require('../controllers/device.controller');
 
 // All device routes are protected
@@ -21,5 +23,7 @@ router.route('/:id')
   .delete(protect, deleteDevice);
 
 router.patch('/:id/toggle', protect, toggleDevice);
+router.post('/:id/on', protect, deviceOn);
+router.post('/:id/off', protect, deviceOff);
 
 module.exports = router;

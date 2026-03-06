@@ -191,11 +191,78 @@ const toggleDevice = async (req, res) => {
   }
 };
 
+// @desc    Turn device on
+// @route   POST /api/devices/:id/on
+// @access  Private
+const deviceOn = async (req, res) => {
+  try {
+    const device = await Device.findOne({
+      _id: req.params.id,
+      userId: req.user.id
+    });
+    
+    if (!device) {
+      return res.status(404).json({ message: 'Device not found' });
+    }
+    
+    device.status = 'on';
+    device.lastTurnedOn = new Date();
+    await device.save();
+    
+    res.json({
+      success: true,
+      data: device
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// @desc    Turn device off
+// @route   POST /api/devices/:id/off
+// @access  Private
+const deviceOff = async (req, res) => {
+  try {
+    const { usageTime } = req.body; // Expecting usageTime in seconds
+    const device = await Device.findOne({
+      _id: req.params.id,
+      userId: req.user.id
+    });
+    
+    if (!device) {
+      return res.status(404).json({ message: 'Device not found' });
+    }
+    
+    let addedTime = usageTime ? Number(usageTime) : 0;
+
+    // Fallback if frontend doesn't send time
+    if (!usageTime && device.lastTurnedOn && device.status === 'on') {
+       addedTime = Math.floor((new Date() - new Date(device.lastTurnedOn)) / 1000);
+    }
+
+    device.status = 'off';
+    device.lastTurnedOff = new Date();
+    device.totalUsageTime = (device.totalUsageTime || 0) + addedTime;
+    await device.save();
+    
+    res.json({
+      success: true,
+      data: device
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 module.exports = {
   getDevices,
   getDevice,
   createDevice,
   updateDevice,
   deleteDevice,
-  toggleDevice
+  toggleDevice,
+  deviceOn,
+  deviceOff
 };

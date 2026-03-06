@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { FaBell, FaInfoCircle, FaExclamationTriangle, FaTrash } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import toast from 'react-hot-toast';
 
 const AlertsFeed = () => {
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchAlerts();
@@ -67,7 +69,9 @@ const AlertsFeed = () => {
         )}
       </div>
       
-      <button className="mt-4 text-xs text-primary-600 font-bold hover:underline w-full text-center">
+      <button 
+        onClick={() => navigate('/insights')}
+        className="mt-4 text-xs text-primary-600 font-bold hover:underline w-full text-center">
         View All History
       </button>
     </div>

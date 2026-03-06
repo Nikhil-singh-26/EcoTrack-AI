@@ -32,6 +32,18 @@ const deviceSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  totalUsageTime: {
+    type: Number,
+    default: 0
+  },
+  lastTurnedOn: {
+    type: Date,
+    default: null
+  },
+  lastTurnedOff: {
+    type: Date,
+    default: null
+  },
   dailyUsage: [{
     date: {
       type: Date,
