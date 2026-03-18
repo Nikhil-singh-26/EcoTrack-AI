@@ -18,7 +18,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       </ThemeProvider>
     </BrowserRouter>
   </React.StrictMode>
-)
+);
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {

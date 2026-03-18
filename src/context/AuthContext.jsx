@@ -16,6 +16,14 @@ export const AuthProvider = ({ children }) => {
   // Load user on app load and token change
   useEffect(() => {
     const loadUser = async () => {
+      const API = import.meta.env.VITE_API_URL;
+      
+      if (!API) {
+        console.error("API URL not defined");
+        setLoading(false);
+        return;
+      }
+
       const token = localStorage.getItem('token');
       
       if (!token) {
@@ -29,7 +37,7 @@ export const AuthProvider = ({ children }) => {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_URL}/auth/me`);
+        const res = await axios.get(`${API}/auth/me`);
         if (res.data && res.data.success && res.data.user) {
           setUser(res.data.user);
           setIsAuthenticated(true);
@@ -52,8 +60,9 @@ export const AuthProvider = ({ children }) => {
   }, [token]);
 
   const login = async (email, password) => {
+    const API = import.meta.env.VITE_API_URL;
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, {
+      const res = await axios.post(`${API}/auth/login`, {
         email,
         password
       });
@@ -77,8 +86,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (name, email, password, location) => {
+    const API = import.meta.env.VITE_API_URL;
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/auth/register`, {
+      const res = await axios.post(`${API}/auth/register`, {
         name,
         email,
         password,
