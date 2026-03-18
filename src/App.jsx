@@ -14,9 +14,26 @@ import LoadingSpinner from './components/LoadingSpinner'
 function App() {
   const { user, loading, isAuthenticated } = useAuth()
 
+  console.log("AUTH DEBUG:", {
+    loading,
+    isAuthenticated,
+    user
+  });
+
   // Wait for auth initialization
   if (loading || isAuthenticated === null) {
-    return <LoadingSpinner fullScreen />
+    return <div style={{ 
+      height: '100vh', 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center',
+      background: '#111827',
+      color: 'white',
+      fontSize: '1.5rem',
+      fontWeight: 'bold'
+    }}>
+      Loading EcoTrack...
+    </div>
   }
 
   return (
@@ -32,18 +49,36 @@ function App() {
       />
       
       {/* Protected Layout Routes */}
-      <Route 
-        path="/" 
-        element={isAuthenticated ? <Layout /> : <Navigate to="/login" replace />}
-      >
-        <Route index element={<Navigate to="/dashboard" replace />} />
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="devices" element={<Devices />} />
-        <Route path="insights" element={<Insights />} />
-        <Route path="leaderboard" element={<Leaderboard />} />
-        <Route path="profile" element={<Profile />} />
+      {/* Root Layout - Always Rendered */}
+      <Route path="/" element={<Layout />}>
+        <Route index element={<Navigate to="/login" replace />} />
+        
+        {/* Child Routes with Auth Checks */}
+        <Route 
+          path="dashboard" 
+          element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" replace />} 
+        />
+        <Route 
+          path="devices" 
+          element={isAuthenticated ? <Devices /> : <Navigate to="/login" replace />} 
+        />
+        <Route 
+          path="insights" 
+          element={isAuthenticated ? <Insights /> : <Navigate to="/login" replace />} 
+        />
+        <Route 
+          path="leaderboard" 
+          element={isAuthenticated ? <Leaderboard /> : <Navigate to="/login" replace />} 
+        />
+        <Route 
+          path="profile" 
+          element={isAuthenticated ? <Profile /> : <Navigate to="/login" replace />} 
+        />
         {user?.role === 'admin' && (
-          <Route path="admin" element={<Admin />} />
+          <Route 
+            path="admin" 
+            element={isAuthenticated ? <Admin /> : <Navigate to="/login" replace />} 
+          />
         )}
       </Route>
       
@@ -54,3 +89,4 @@ function App() {
 }
 
 export default App
+console.log("API URL:", import.meta.env.VITE_API_URL);
