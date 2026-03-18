@@ -17,17 +17,22 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const loadUser = async () => {
       const API = import.meta.env.VITE_API_URL;
+      const token = localStorage.getItem('token');
       
+      console.log("AUTH DEBUG:", {
+        API,
+        token: token ? "Available" : "Missing"
+      });
+
       if (!API) {
         console.error("API URL not defined");
         setLoading(false);
         return;
       }
-
-      const token = localStorage.getItem('token');
       
       if (!token) {
         setUser(null);
+        delete axios.defaults.headers.common['Authorization'];
         setIsAuthenticated(false);
         setLoading(false);
         return;
