@@ -11,6 +11,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState(localStorage.getItem('token'));
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
 
   // Set axios default header
   useEffect(() => {
@@ -25,6 +26,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const loadUser = async () => {
       if (!token) {
+        setIsAuthenticated(false);
         setLoading(false);
         return;
       }
@@ -32,11 +34,13 @@ export const AuthProvider = ({ children }) => {
       try {
         const res = await axios.get(`${import.meta.env.VITE_API_URL}/auth/me`);
         setUser(res.data.user);
+        setIsAuthenticated(true);
       } catch (error) {
         console.error('Failed to load user:', error);
         localStorage.removeItem('token');
         setToken(null);
         setUser(null);
+        setIsAuthenticated(false);
       } finally {
         setLoading(false);
       }
@@ -56,6 +60,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('token', token);
       setToken(token);
       setUser(user);
+      setIsAuthenticated(true);
       toast.success('Logged in successfully!');
       
       // Initialize notifications after successful login
@@ -81,6 +86,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('token', token);
       setToken(token);
       setUser(user);
+      setIsAuthenticated(true);
       toast.success('Registered successfully!');
       return { success: true };
     } catch (error) {
@@ -93,6 +99,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
+    setIsAuthenticated(false);
     toast.success('Logged out');
   };
 
@@ -102,7 +109,7 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
-    isAuthenticated: !!user
+    isAuthenticated,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -14,15 +14,29 @@ import LoadingSpinner from './components/LoadingSpinner'
 function App() {
   const { user, loading, isAuthenticated } = useAuth()
 
-  if (loading) return <LoadingSpinner fullScreen />
+  // Wait for auth initialization
+  if (loading || isAuthenticated === null) {
+    return <LoadingSpinner fullScreen />
+  }
 
   return (
     <Routes>
-      <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" />} />
-      <Route path="/register" element={!isAuthenticated ? <Register /> : <Navigate to="/dashboard" />} />
+      {/* Public Routes */}
+      <Route 
+        path="/login" 
+        element={!isAuthenticated ? <Login /> : <Navigate to="/dashboard" replace />} 
+      />
+      <Route 
+        path="/register" 
+        element={!isAuthenticated ? <Register /> : <Navigate to="/dashboard" replace />} 
+      />
       
-      <Route path="/" element={isAuthenticated ? <Layout /> : <Navigate to="/login" />}>
-        <Route index element={<Navigate to="/dashboard" />} />
+      {/* Protected Layout Routes */}
+      <Route 
+        path="/" 
+        element={isAuthenticated ? <Layout /> : <Navigate to="/login" replace />}
+      >
+        <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="devices" element={<Devices />} />
         <Route path="insights" element={<Insights />} />
@@ -33,7 +47,8 @@ function App() {
         )}
       </Route>
       
-      <Route path="*" element={<Navigate to="/" />} />
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }
