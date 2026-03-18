@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import toast from 'react-hot-toast';
 import { initializeNotifications } from '../utils/notifications';
 
@@ -16,33 +16,21 @@ export const AuthProvider = ({ children }) => {
   // Load user on app load and token change
   useEffect(() => {
     const loadUser = async () => {
-      const API = import.meta.env.VITE_API_URL;
       const token = localStorage.getItem('token');
       
       console.log("AUTH DEBUG:", {
-        API,
         token: token ? "Available" : "Missing"
       });
-
-      if (!API) {
-        console.error("API URL not defined");
-        setLoading(false);
-        return;
-      }
       
       if (!token) {
         setUser(null);
-        delete axios.defaults.headers.common['Authorization'];
         setIsAuthenticated(false);
         setLoading(false);
         return;
       }
 
-      // Set axios default header immediately for subsequent calls
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
       try {
-        const res = await axios.get(`${API}/auth/me`);
+        const res = await api.get('auth/me');
         if (res.data && res.data.success && res.data.user) {
           setUser(res.data.user);
           setIsAuthenticated(true);
@@ -52,7 +40,6 @@ export const AuthProvider = ({ children }) => {
       } catch (error) {
         console.error('Failed to load user:', error.message);
         localStorage.removeItem('token');
-        delete axios.defaults.headers.common['Authorization'];
         setToken(null);
         setUser(null);
         setIsAuthenticated(false);
@@ -65,16 +52,14 @@ export const AuthProvider = ({ children }) => {
   }, [token]);
 
   const login = async (email, password) => {
-    const API = import.meta.env.VITE_API_URL;
     try {
-      const res = await axios.post(`${API}/auth/login`, {
+      const res = await api.post('auth/login', {
         email,
         password
       });
       
       const { token, user } = res.data;
       localStorage.setItem('token', token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setToken(token);
       setUser(user);
       setIsAuthenticated(true);
@@ -91,9 +76,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (name, email, password, location) => {
-    const API = import.meta.env.VITE_API_URL;
     try {
-      const res = await axios.post(`${API}/auth/register`, {
+      const res = await api.post('auth/register', {
         name,
         email,
         password,
@@ -102,7 +86,6 @@ export const AuthProvider = ({ children }) => {
       
       const { token, user } = res.data;
       localStorage.setItem('token', token);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setToken(token);
       setUser(user);
       setIsAuthenticated(true);
@@ -116,7 +99,6 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('token');
-    delete axios.defaults.headers.common['Authorization'];
     setToken(null);
     setUser(null);
     setIsAuthenticated(false);
