@@ -13,31 +13,33 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [isAuthenticated, setIsAuthenticated] = useState(null);
 
-  // Set axios default header
-  useEffect(() => {
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    } else {
-      delete axios.defaults.headers.common['Authorization'];
-    }
-  }, [token]);
-
-  // Load user on token change
+  // Load user on app load and token change
   useEffect(() => {
     const loadUser = async () => {
+      const token = localStorage.getItem('token');
+      
       if (!token) {
+        setUser(null);
         setIsAuthenticated(false);
         setLoading(false);
         return;
       }
 
+      // Set axios default header immediately for subsequent calls
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
       try {
         const res = await axios.get(`${import.meta.env.VITE_API_URL}/auth/me`);
-        setUser(res.data.user);
-        setIsAuthenticated(true);
+        if (res.data.success) {
+          setUser(res.data.user);
+          setIsAuthenticated(true);
+        } else {
+          throw new Error('Verification failed');
+        }
       } catch (error) {
         console.error('Failed to load user:', error);
         localStorage.removeItem('token');
+        delete axios.defaults.headers.common['Authorization'];
         setToken(null);
         setUser(null);
         setIsAuthenticated(false);
@@ -58,6 +60,7 @@ export const AuthProvider = ({ children }) => {
       
       const { token, user } = res.data;
       localStorage.setItem('token', token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setToken(token);
       setUser(user);
       setIsAuthenticated(true);
@@ -84,6 +87,7 @@ export const AuthProvider = ({ children }) => {
       
       const { token, user } = res.data;
       localStorage.setItem('token', token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       setToken(token);
       setUser(user);
       setIsAuthenticated(true);
@@ -97,6 +101,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem('token');
+    delete axios.defaults.headers.common['Authorization'];
     setToken(null);
     setUser(null);
     setIsAuthenticated(false);
