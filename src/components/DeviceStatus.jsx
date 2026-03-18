@@ -18,7 +18,7 @@ const DeviceStatus = () => {
 
   const fetchDevices = async () => {
     try {
-      const res = await api.get('/api/devices');
+      const res = await api.get('devices');
       setDevices(res.data.data);
     } catch (error) {
       console.error('Failed to fetch devices', error);
@@ -30,7 +30,7 @@ const DeviceStatus = () => {
   const toggleDevice = async (id, currentStatus) => {
     try {
       const isCurrentlyOn = currentStatus === 'on';
-      const endpoint = isCurrentlyOn ? `/api/devices/${id}/off` : `/api/devices/${id}/on`;
+      const endpoint = isCurrentlyOn ? `devices/${id}/off` : `devices/${id}/on`;
       
       let payload = {};
       if (isCurrentlyOn) {
@@ -64,7 +64,7 @@ const DeviceStatus = () => {
   const simulateDevice = async (id) => {
     setSimulating(id);
     try {
-      await api.post('/api/energy/simulate', { deviceId: id, hours: 1 });
+      await api.post('energy/simulate', { deviceId: id, hours: 1 });
       toast.success('Simulation data added');
       window.dispatchEvent(new Event('refreshDashboard'));
     } catch (error) {

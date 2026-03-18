@@ -1,0 +1,5 @@
+URL: "/api/energy" -> URI: "https://foo.com/api/api/energy"
+URL: "api/energy" -> URI: "https://foo.com/api/api/energy"
+URL: "/energy" -> URI: "https://foo.com/api/energy"
+URL: "energy" -> URI: "https://foo.com/api/energy"
+URL: "https://bar.com/other" -> URI: "https://bar.com/other"

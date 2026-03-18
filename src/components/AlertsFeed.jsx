@@ -15,7 +15,7 @@ const AlertsFeed = () => {
 
   const fetchAlerts = async () => {
     try {
-      const res = await api.get('/api/energy/alerts'); // Assuming this exists or using stats
+      const res = await api.get('energy/alerts'); // Assuming this exists or using stats
       setAlerts(res.data.data || []);
     } catch (error) {
       // If endpoint doesn't exist yet, we'll show mock for hackathon demo

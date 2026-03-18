@@ -21,7 +21,7 @@ const Devices = () => {
 
   const fetchDevices = async () => {
     try {
-      const res = await api.get('/api/devices');
+      const res = await api.get('devices');
       setDevices(res.data.data);
     } catch (error) {
       toast.error('Failed to load devices');
@@ -33,7 +33,7 @@ const Devices = () => {
   const handleDelete = async (id) => {
     if (!confirm('Are you sure you want to delete this device?')) return;
     try {
-      await api.delete(`/api/devices/${id}`);
+      await api.delete(`devices/${id}`);
       setDevices(devices.filter(d => d._id !== id));
       toast.success('Device deleted');
     } catch (error) {
@@ -44,7 +44,7 @@ const Devices = () => {
   const handleToggle = async (id, currentStatus) => {
     try {
       const isCurrentlyOn = currentStatus === 'on';
-      const endpoint = isCurrentlyOn ? `/api/devices/${id}/off` : `/api/devices/${id}/on`;
+      const endpoint = isCurrentlyOn ? `devices/${id}/off` : `devices/${id}/on`;
       
       let payload = {};
       if (isCurrentlyOn) {

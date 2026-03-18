@@ -19,9 +19,9 @@ const Insights = () => {
     setLoading(true);
     try {
       const [predRes, carbonRes, leaderRes] = await Promise.all([
-        api.get('/api/energy/predict-bill'),
-        api.get(`/api/energy/carbon-footprint?period=${period}`),
-        api.get('/api/users/leaderboard') // need to implement this endpoint
+        api.get('energy/predict-bill'),
+        api.get(`energy/carbon-footprint?period=${period}`),
+        api.get('users/leaderboard') // need to implement this endpoint
       ]);
       setPrediction(predRes.data.data);
       setCarbonData(carbonRes.data.data);

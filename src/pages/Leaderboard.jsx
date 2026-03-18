@@ -14,7 +14,7 @@ const Leaderboard = () => {
 
   const fetchLeaderboard = async () => {
     try {
-      const res = await api.get('/api/users/leaderboard');
+      const res = await api.get('users/leaderboard');
       setLeaders(res.data.data);
     } catch (error) {
       toast.error('Failed to load leaderboard');

@@ -13,7 +13,7 @@ const Admin = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await api.get('/api/admin/users'); // need to implement
+      const res = await api.get('admin/users'); // need to implement
       setUsers(res.data.data);
     } catch (error) {
       toast.error('Failed to load users');
@@ -25,7 +25,7 @@ const Admin = () => {
   const deleteUser = async (id) => {
     if (!confirm('Delete this user?')) return;
     try {
-      await api.delete(`/api/admin/users/${id}`);
+      await api.delete(`admin/users/${id}`);
       setUsers(users.filter(u => u._id !== id));
       toast.success('User deleted');
     } catch (error) {

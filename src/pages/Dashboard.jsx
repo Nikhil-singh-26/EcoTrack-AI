@@ -36,10 +36,10 @@ const Dashboard = () => {
     setLoading(true);
     try {
       const [statsRes, analyticsRes, scoreRes, rewardsRes] = await Promise.all([
-        api.get('/api/energy/stats'),
-        api.get('/api/energy/analytics/insights'),
-        api.get('/api/energy/analytics/efficiency-score'),
-        api.get('/api/rewards')
+        api.get('energy/stats'),
+        api.get('energy/analytics/insights'),
+        api.get('energy/analytics/efficiency-score'),
+        api.get('rewards')
       ]);
 
       setStats(statsRes.data.data);

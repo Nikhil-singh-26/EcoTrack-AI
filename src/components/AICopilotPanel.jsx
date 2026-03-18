@@ -21,7 +21,7 @@ const AICopilotPanel = () => {
     setLoading(true);
 
     try {
-      const res = await api.post('/api/ai/copilot', { question });
+      const res = await api.post('ai/copilot', { question });
       const aiMsg = { 
         role: 'ai', 
         text: res.data.answer,

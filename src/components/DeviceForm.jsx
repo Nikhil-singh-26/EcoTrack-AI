@@ -27,10 +27,10 @@ const DeviceForm = ({ device, onClose, onSuccess }) => {
     setLoading(true);
     try {
       if (device) {
-        await api.put(`/api/devices/${device._id}`, formData);
+        await api.put(`devices/${device._id}`, formData);
         toast.success('Device updated');
       } else {
-        await api.post('/api/devices', formData);
+        await api.post('devices', formData);
         toast.success('Device added');
       }
       onSuccess();

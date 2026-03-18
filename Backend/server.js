@@ -119,6 +119,10 @@ server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
 
+app.get("/api", (req, res) => {
+  res.send("API is running 🚀");
+});
+
 app.get("/", (req, res) => {
   res.send("EcoTrack AI Backend Running 🚀");
 });

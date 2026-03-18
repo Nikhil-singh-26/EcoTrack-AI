@@ -25,7 +25,7 @@ const EnergyLiveChart = () => {
   const fetchInitialData = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/api/energy/stats');
+      const response = await api.get('energy/stats');
       const stats = response.data.data;
       
       // Transform stats data for chart
@@ -65,7 +65,7 @@ const EnergyLiveChart = () => {
     // Try to use Socket.io if available
     try {
       import('socket.io-client').then(({ io }) => {
-        const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
+        const socket = io(import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000');
         
         socket.on('connect', () => {
           console.log('Connected to real-time energy updates');
@@ -102,7 +102,7 @@ const EnergyLiveChart = () => {
 
   const fetchLatestData = async () => {
     try {
-      const response = await api.get('/api/energy/stats');
+      const response = await api.get('energy/stats');
       const stats = response.data.data;
       
       // Add new data point

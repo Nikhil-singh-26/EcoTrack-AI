@@ -30,7 +30,7 @@ const AIChatbot = () => {
     setLoading(true);
 
     try {
-      const res = await api.post('/api/ai/chat', { message: input });
+      const res = await api.post('ai/chat', { message: input });
       setMessages(prev => [...prev, { role: 'ai', content: res.data.data.message }]);
     } catch (error) {
       toast.error('Failed to get response');
