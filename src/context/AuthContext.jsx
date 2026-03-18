@@ -30,14 +30,14 @@ export const AuthProvider = ({ children }) => {
 
       try {
         const res = await axios.get(`${import.meta.env.VITE_API_URL}/auth/me`);
-        if (res.data.success) {
+        if (res.data && res.data.success && res.data.user) {
           setUser(res.data.user);
           setIsAuthenticated(true);
         } else {
-          throw new Error('Verification failed');
+          throw new Error('Invalid user data received');
         }
       } catch (error) {
-        console.error('Failed to load user:', error);
+        console.error('Failed to load user:', error.message);
         localStorage.removeItem('token');
         delete axios.defaults.headers.common['Authorization'];
         setToken(null);
