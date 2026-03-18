@@ -65,7 +65,7 @@ const EnergyLiveChart = () => {
     // Try to use Socket.io if available
     try {
       import('socket.io-client').then(({ io }) => {
-        const socket = io(process.env.REACT_APP_BACKEND_URL || 'http://localhost:5000');
+        const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000');
         
         socket.on('connect', () => {
           console.log('Connected to real-time energy updates');
