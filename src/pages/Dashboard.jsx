@@ -7,7 +7,7 @@ import {
 } from 'recharts';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import SummaryCard from '../components/summarycard';
+import SummaryCard from '../components/SummaryCard';
 import EfficiencyCard from '../components/EfficiencyCard';
 import AICopilotPanel from '../components/AICopilotPanel';
 import AlertsFeed from '../components/AlertsFeed';
