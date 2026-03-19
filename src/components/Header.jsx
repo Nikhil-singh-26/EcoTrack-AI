@@ -11,13 +11,13 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="bg-white dark:bg-gray-800 shadow-sm z-10">
+    <header className="bg-white border-b border-emerald-50 z-10">
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Mobile menu button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="md:hidden p-2 rounded-xl text-emerald-700 hover:bg-emerald-50"
           >
             <FaBars />
           </button>
@@ -27,7 +27,7 @@ const Header = () => {
             {/* Theme toggle */}
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="p-2 rounded-xl text-emerald-700 hover:bg-emerald-50"
             >
               {theme === 'light' ? <FaMoon /> : <FaSun />}
             </button>
@@ -35,10 +35,10 @@ const Header = () => {
             {/* User dropdown */}
             <div className="relative">
               <button className="flex items-center space-x-2 focus:outline-none">
-                <div className="w-8 h-8 rounded-full bg-primary-500 flex items-center justify-center text-white font-bold">
+                <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-black shadow-sm">
                   {user?.name?.charAt(0).toUpperCase()}
                 </div>
-                <span className="hidden md:inline text-sm font-medium text-gray-700 dark:text-gray-200">
+                <span className="hidden md:inline text-sm font-bold text-emerald-950">
                   {user?.name}
                 </span>
               </button>
@@ -47,7 +47,7 @@ const Header = () => {
             {/* Logout button */}
             <button
               onClick={logout}
-              className="p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="p-2 rounded-xl text-emerald-700 hover:bg-emerald-50"
               title="Logout"
             >
               <FaSignOutAlt />

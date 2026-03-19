@@ -30,42 +30,46 @@ const Sidebar = () => {
       initial={{ x: -100, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className="w-64 bg-white dark:bg-gray-800 shadow-lg hidden md:block"
+      className="w-64 bg-white border-r border-emerald-50 hidden md:block relative h-full"
     >
-      <div className="flex items-center justify-center h-16 border-b dark:border-gray-700">
-        <div className="flex items-center space-x-2">
-          <FaLeaf className="text-primary-600 text-2xl" />
-          <span className="text-xl font-bold text-gray-800 dark:text-white">EcoTrack AI</span>
+      <div className="flex items-center justify-center h-20 border-b border-emerald-50">
+        <div className="flex items-center space-x-3">
+          <div className="p-2 bg-emerald-500 rounded-lg shadow-lg shadow-emerald-200">
+            <FaLeaf className="text-white text-xl" />
+          </div>
+          <span className="text-xl font-black text-emerald-950 tracking-tight">EcoTrack AI</span>
         </div>
       </div>
       
-      <nav className="mt-6">
+      <nav className="mt-8 px-4 space-y-2">
         {navItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
             className={({ isActive }) =>
-              `flex items-center px-6 py-3 text-gray-700 dark:text-gray-200 hover:bg-primary-50 dark:hover:bg-gray-700 transition-colors ${
-                isActive ? 'bg-primary-100 dark:bg-gray-700 border-r-4 border-primary-600' : ''
+              `flex items-center px-4 py-3 rounded-xl transition-all duration-300 ${
+                isActive 
+                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-200' 
+                  : 'text-emerald-700 hover:bg-emerald-50'
               }`
             }
           >
-            <item.icon className="mr-3" />
-            <span>{item.name}</span>
+            <item.icon className="mr-3 text-lg" />
+            <span className="font-semibold">{item.name}</span>
           </NavLink>
         ))}
       </nav>
       
-      <div className="absolute bottom-0 w-64 p-4 border-t dark:border-gray-700">
+      <div className="absolute bottom-10 left-4 right-4 p-4 border rounded-2xl border-emerald-50 bg-emerald-50/30">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 rounded-full bg-primary-500 flex items-center justify-center text-white font-bold">
+          <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-black shadow-md">
             {user?.name?.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+            <p className="text-sm font-bold text-emerald-950 truncate">
               {user?.name}
             </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+            <p className="text-xs text-emerald-600 font-medium truncate">
               {user?.email}
             </p>
           </div>

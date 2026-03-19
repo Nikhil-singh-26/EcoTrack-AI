@@ -117,7 +117,7 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="space-y-6 pb-20 bg-gray-50 dark:bg-gray-900/50 p-4 rounded-3xl min-h-screen">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-green-500">
@@ -140,36 +140,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {!hasData ? (
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-8 text-center shadow-sm">
-          <FaBolt className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">No energy data available yet</h3>
-          <p className="mt-2 text-gray-500 dark:text-gray-400 mb-6">Try running a simulation from your devices or click below to generate sample data.</p>
-          <button 
-            onClick={async () => {
-              try {
-                const devRes = await api.get('devices');
-                const devices = devRes.data.data;
-                if (devices.length === 0) {
-                  toast.error('Please add a device first!');
-                  navigate('/devices');
-                  return;
-                }
-                const firstId = devices[0]._id;
-                await api.post('energy/simulate', { deviceId: firstId, hours: 2 });
-                toast.success('Sample data generated!');
-                fetchAllData();
-              } catch (e) {
-                toast.error('Failed to generate sample data');
-              }
-            }}
-            className="btn-primary"
-          >
-            Generate Sample Data
-          </button>
-        </div>
-      ) : (
-        <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <SummaryCard 
               title="Avg Daily (Weekly)" 
@@ -291,14 +261,11 @@ const Dashboard = () => {
             </p>
           </div>
         </div>
-        </div>
-        </>
-      )}
+      </div>
 
       <AICopilotPanel />
     </div>
   );
 };
-
 
 export default Dashboard;
