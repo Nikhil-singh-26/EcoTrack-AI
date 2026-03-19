@@ -25,7 +25,15 @@ const server = http.createServer(app);
 
 // Express CORS
 app.use(cors({
-  origin: "*"
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    // Allow any origin that wants to connect
+    callback(null, true);
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"]
 }));
 
 // Socket.io CORS

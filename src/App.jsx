@@ -22,18 +22,7 @@ function App() {
 
   // Wait for auth initialization
   if (loading || isAuthenticated === null) {
-    return <div style={{ 
-      height: '100vh', 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center',
-      background: '#111827',
-      color: 'white',
-      fontSize: '1.5rem',
-      fontWeight: 'bold'
-    }}>
-      Loading EcoTrack...
-    </div>
+    return <div style={{ color: 'white', padding: '20px' }}>Loading EcoTrack AI...</div>;
   }
 
   return (
