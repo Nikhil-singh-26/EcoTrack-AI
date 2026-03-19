@@ -102,7 +102,29 @@ const Dashboard = () => {
         <div className="bg-white dark:bg-gray-800 rounded-xl p-8 text-center shadow-sm">
           <FaBolt className="mx-auto h-12 w-12 text-gray-400 mb-4" />
           <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">No energy data available yet</h3>
-          <p className="mt-2 text-gray-500 dark:text-gray-400">Try running a simulation from your devices to see insights.</p>
+          <p className="mt-2 text-gray-500 dark:text-gray-400 mb-6">Try running a simulation from your devices or click below to generate sample data.</p>
+          <button 
+            onClick={async () => {
+              try {
+                const devRes = await api.get('devices');
+                const devices = devRes.data.data;
+                if (devices.length === 0) {
+                  toast.error('Please add a device first!');
+                  navigate('/devices');
+                  return;
+                }
+                const firstId = devices[0]._id;
+                await api.post('energy/simulate', { deviceId: firstId, hours: 2 });
+                toast.success('Sample data generated!');
+                fetchAllData();
+              } catch (e) {
+                toast.error('Failed to generate sample data');
+              }
+            }}
+            className="btn-primary"
+          >
+            Generate Sample Data
+          </button>
         </div>
       ) : (
         <>

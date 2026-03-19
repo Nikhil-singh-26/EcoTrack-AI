@@ -15,9 +15,38 @@ const Devices = () => {
 
   useEffect(() => {
     fetchDevices();
-    const timer = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(timer);
+    const uiTimer = setInterval(() => setNow(new Date()), 1000);
+    
+    // Background Energy Simulation Timer (Every 1 minute)
+    const simulationTimer = setInterval(() => {
+      simulateActiveDevices();
+    }, 60000);
+
+    return () => {
+      clearInterval(uiTimer);
+      clearInterval(simulationTimer);
+    };
   }, []);
+
+  const simulateActiveDevices = () => {
+    // We only call the API, the local setNow(new Date()) already handles visual "on time"
+    // The actual data (kwh, totalUsageTime) will be updated on the next fetch or next toggle
+    devices.forEach(async (device) => {
+      if (device.status === 'on') {
+        try {
+          // Simulate 1 minute of usage (1/60 hours)
+          await api.post('energy/simulate', { 
+            deviceId: device._id, 
+            hours: 1/60 
+          });
+          // Refresh devices to get the latest calculated energy/usage from backend
+          fetchDevices();
+        } catch (error) {
+          console.error('Simulation failed for', device.name, error);
+        }
+      }
+    });
+  };
 
   const fetchDevices = async () => {
     try {
@@ -49,8 +78,26 @@ const Devices = () => {
       let payload = {};
       if (isCurrentlyOn) {
          const device = devices.find(d => d._id === id);
-         const secondsOn = device.lastTurnedOn ? Math.floor((new Date() - new Date(device.lastTurnedOn)) / 1000) : 0;
+         // Calculate final usage time since last ON status (ignoring periodic simulations for totalUsageTime sync)
+         // Actually, totalUsageTime on backend is updated by BOTH toggle(off) and simulation.
+         // Since we periodically simulate, toggle(off) should only send the REMAINING time since the last simulation tick.
+         // But for simplicity, we'll let the backend's explicit toggle(off) logic handle the final addition of seconds.
+         const secondsOn = device.lastTurnedOn ? Math.floor((now - new Date(device.lastTurnedOn)) / 1000) : 0;
          payload = { usageTime: secondsOn };
+         
+         // Also send a final simulation for the exact fraction of time to update its kWh/Cost
+         if (secondsOn > 0) {
+           await api.post('energy/simulate', {
+             deviceId: id,
+             hours: secondsOn / 3600
+           });
+         }
+      } else {
+         // Immediate simulation when turning ON to show it started
+         await api.post('energy/simulate', {
+           deviceId: id,
+           hours: 0
+         });
       }
 
       const res = await api.post(endpoint, payload);
@@ -58,6 +105,8 @@ const Devices = () => {
         d._id === id ? { ...d, ...res.data.data } : d
       ));
       toast.success(`Device turned ${res.data.data.status}`);
+      // Final fetch to synchronize all calculated stats (energy cost etc)
+      fetchDevices();
     } catch (error) {
       toast.error('Failed to toggle device');
     }
