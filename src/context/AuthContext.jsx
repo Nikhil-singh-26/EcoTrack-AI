@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import api from '../services/api';
+import axios from 'axios';
 import toast from 'react-hot-toast';
 import { initializeNotifications } from '../utils/notifications';
 
@@ -16,21 +16,31 @@ export const AuthProvider = ({ children }) => {
   // Load user on app load and token change
   useEffect(() => {
     const loadUser = async () => {
+      const API = import.meta.env.VITE_API_URL;
       const token = localStorage.getItem('token');
       
-      console.log("AUTH DEBUG:", {
-        token: token ? "Available" : "Missing"
-      });
+      console.log("FINAL API CALL:", `${API}/auth/me`);
+      console.log("TOKEN IN STORAGE:", token ? "Exists" : "Empty");
+
+      if (!API) {
+        console.error("VITE_API_URL not defined!");
+        setLoading(false);
+        return;
+      }
       
       if (!token) {
-        setUser(null);
         setIsAuthenticated(false);
         setLoading(false);
         return;
       }
 
       try {
-        const res = await api.get('auth/me');
+        const res = await axios.get(`${API}/auth/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+
         if (res.data && res.data.success && res.data.user) {
           setUser(res.data.user);
           setIsAuthenticated(true);
@@ -52,8 +62,9 @@ export const AuthProvider = ({ children }) => {
   }, [token]);
 
   const login = async (email, password) => {
+    const API = import.meta.env.VITE_API_URL;
     try {
-      const res = await api.post('auth/login', {
+      const res = await axios.post(`${API}/auth/login`, {
         email,
         password
       });
@@ -76,8 +87,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (name, email, password, location) => {
+    const API = import.meta.env.VITE_API_URL;
     try {
-      const res = await api.post('auth/register', {
+      const res = await axios.post(`${API}/auth/register`, {
         name,
         email,
         password,
