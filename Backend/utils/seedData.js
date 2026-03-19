@@ -7,10 +7,21 @@ const Alert = require('../models/Alert');
 
 const seedData = async () => {
   try {
-    // Check if data already exists
     const userCount = await User.countDocuments();
+    // Update existing users if they have mock names
+    const mockUsersMap = {
+      'John Doe': 'Raj Jaiswal',
+      'Jane Smith': 'Rahul Dewangan',
+      'Bob Johnson': 'Roshan Verma',
+      'Admin User': 'Admin'
+    };
+
     if (userCount > 0) {
-      console.log('📦 Database already has data, skipping seeding...');
+      console.log('🔄 Checking for mock users to rename...');
+      for (const [oldName, newName] of Object.entries(mockUsersMap)) {
+        await User.updateOne({ name: oldName }, { name: newName });
+      }
+      console.log('✅ Name update complete.');
       return;
     }
 
@@ -19,40 +30,40 @@ const seedData = async () => {
     // Create users
     const users = await User.create([
       {
-        name: 'John Doe',
-        email: 'john@example.com',
+        name: 'Raj Jaiswal',
+        email: 'raj@example.com',
         password: await bcrypt.hash('password123', 10),
         role: 'user',
-        location: 'New York',
+        location: 'Raipur',
         energyGoal: 500,
         carbonSaved: 120,
         totalEnergySaved: 350,
         rank: 1
       },
       {
-        name: 'Jane Smith',
-        email: 'jane@example.com',
+        name: 'Rahul Dewangan',
+        email: 'rahul@example.com',
         password: await bcrypt.hash('password123', 10),
         role: 'user',
-        location: 'Los Angeles',
+        location: 'Raipur',
         energyGoal: 450,
         carbonSaved: 95,
         totalEnergySaved: 280,
         rank: 2
       },
       {
-        name: 'Bob Johnson',
-        email: 'bob@example.com',
+        name: 'Roshan Verma',
+        email: 'roshan@example.com',
         password: await bcrypt.hash('password123', 10),
         role: 'user',
-        location: 'Chicago',
+        location: 'Raipur',
         energyGoal: 600,
         carbonSaved: 80,
         totalEnergySaved: 210,
         rank: 3
       },
       {
-        name: 'Admin User',
+        name: 'Admin',
         email: 'admin@ecotrack.com',
         password: await bcrypt.hash('admin123', 10),
         role: 'admin',

@@ -1,12 +1,13 @@
 import { motion } from 'framer-motion'
 
-const SummaryCard = ({ title, value, icon, change }) => {
+const SummaryCard = ({ title, value, icon, change, onClick }) => {
   const isPositive = change >= 0
 
   return (
     <motion.div
       whileHover={{ y: -4 }}
-      className="card"
+      onClick={onClick}
+      className={`card ${onClick ? 'cursor-pointer hover:shadow-lg transition-all duration-300' : ''}`}
     >
       <div className="flex items-center justify-between">
         <div>

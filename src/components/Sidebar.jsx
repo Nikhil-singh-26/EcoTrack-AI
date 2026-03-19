@@ -9,7 +9,9 @@ import {
   FaLeaf,
   FaTachometerAlt,
   FaUsers,
-  FaTrophy // Added FaTrophy
+  FaTrophy,
+  FaChartArea,
+  FaPlayCircle
 } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 
@@ -19,6 +21,8 @@ const Sidebar = ({ isOpen }) => {
   const navItems = [
     { path: '/dashboard', name: 'Dashboard', icon: FaTachometerAlt },
     { path: '/devices', name: 'Devices', icon: FaMicrochip },
+    { path: '/analytics', name: 'Analytics', icon: FaChartArea },
+    { path: '/simulator', name: 'Savings Simulator', icon: FaPlayCircle },
     { path: '/leaderboard', name: 'Leaderboard', icon: FaTrophy },
     ...(user?.role === 'admin' ? [{ path: '/admin', name: 'Admin', icon: FaUsers }] : []),
   ];

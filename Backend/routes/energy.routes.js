@@ -9,7 +9,10 @@ const {
   getCarbonFootprint, 
   simulateData,
   getEnergyStats,
-  getDeviceRanking
+  getDeviceRanking,
+  getCarbonAnalytics,
+  applySmartSchedule,
+  getDeviceUsageTrend
 } = require('../controllers/energy.controller');
 
 // Real-time energy data
@@ -17,6 +20,15 @@ router.get('/realtime', protect, getRealTimeData);
 
 // Energy data for charts
 router.get('/chart', protect, getChartData);
+
+// Carbon analytics (Detailed)
+router.get('/carbon-analytics', protect, getCarbonAnalytics);
+
+// Usage by device and time
+router.get('/usage-by-device', protect, getDeviceUsageTrend);
+
+// Apply smart schedule
+router.post('/apply-schedule', protect, applySmartSchedule);
 
 // Energy stats (Aggregated) - cache for 5 mins
 router.get('/stats', protect, cacheMiddleware(300), getEnergyStats);

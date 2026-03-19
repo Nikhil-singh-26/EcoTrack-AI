@@ -9,6 +9,9 @@ import Insights from './pages/Insights'
 import Profile from './pages/Profile'
 import Admin from './pages/Admin'
 import Leaderboard from './pages/Leaderboard'
+import Analytics from './pages/Analytics'
+import SavingsSimulator from './pages/SavingsSimulator'
+import UsageInsights from './pages/UsageInsights'
 import LoadingSpinner from './components/LoadingSpinner'
 
 function App() {
@@ -54,6 +57,18 @@ function App() {
         <Route 
           path="leaderboard" 
           element={isAuthenticated ? <Leaderboard /> : <Navigate to="/login" replace />} 
+        />
+        <Route 
+          path="analytics" 
+          element={isAuthenticated ? <Analytics /> : <Navigate to="/login" replace />} 
+        />
+        <Route 
+          path="simulator" 
+          element={isAuthenticated ? <SavingsSimulator /> : <Navigate to="/login" replace />} 
+        />
+        <Route 
+          path="usage-insights" 
+          element={isAuthenticated ? <UsageInsights /> : <Navigate to="/login" replace />} 
         />
         <Route 
           path="profile" 

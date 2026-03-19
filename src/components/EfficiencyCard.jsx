@@ -16,12 +16,9 @@ const EfficiencyCard = ({ score = 0, category = "N/A", suggestion = "" }) => {
     >
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-bold flex items-center gap-2">
-          <FaShieldAlt className="text-primary-600" />
+          <FaShieldAlt className="text-emerald-600" />
           Efficiency Score
         </h3>
-        <span className="text-xs font-semibold px-2 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-600 rounded">
-          HACKATHON v1.0
-        </span>
       </div>
 
       <div className="flex flex-col items-center">

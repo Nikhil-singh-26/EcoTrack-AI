@@ -8,7 +8,6 @@ import {
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import SummaryCard from '../components/summarycard';
-import CarbonImpactCard from '../components/CarbonImpactCard';
 import EfficiencyCard from '../components/EfficiencyCard';
 import AICopilotPanel from '../components/AICopilotPanel';
 import AlertsFeed from '../components/AlertsFeed';
@@ -145,6 +144,7 @@ const Dashboard = () => {
               title="Avg Daily (Weekly)" 
               value={`${analytics?.averageWeeklyUsage || 0} kWh`} 
               icon={<FaBolt />} 
+              onClick={() => navigate('/usage-insights')}
             />
             <SummaryCard 
               title="Estimated Bill" 
@@ -247,8 +247,6 @@ const Dashboard = () => {
             suggestion={scoreData?.suggestion}
           />
           
-          <CarbonImpactCard energyUsage={dailyUsage} />
-
           <div className="card border-t-4 border-emerald-500">
             <h3 className="font-bold mb-3 flex items-center gap-2 text-emerald-950 font-black">
                 <FaChartLine className="text-emerald-500" />
