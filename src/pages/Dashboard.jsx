@@ -249,14 +249,12 @@ const Dashboard = () => {
           
           <CarbonImpactCard energyUsage={dailyUsage} />
 
-          <AlertsFeed />
-
-          <div className="card border-t-4 border-primary-500">
-            <h3 className="font-bold mb-3 flex items-center gap-2">
-                <FaChartLine className="text-primary-500" />
+          <div className="card border-t-4 border-emerald-500">
+            <h3 className="font-bold mb-3 flex items-center gap-2 text-emerald-950 font-black">
+                <FaChartLine className="text-emerald-500" />
                 AI Suggestion
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed italic">
+            <p className="text-sm text-emerald-600 leading-relaxed italic">
                 "{analytics?.savingSuggestion}"
             </p>
           </div>

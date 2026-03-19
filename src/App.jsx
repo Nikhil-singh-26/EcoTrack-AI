@@ -52,10 +52,6 @@ function App() {
           element={isAuthenticated ? <Devices /> : <Navigate to="/login" replace />} 
         />
         <Route 
-          path="insights" 
-          element={isAuthenticated ? <Insights /> : <Navigate to="/login" replace />} 
-        />
-        <Route 
           path="leaderboard" 
           element={isAuthenticated ? <Leaderboard /> : <Navigate to="/login" replace />} 
         />

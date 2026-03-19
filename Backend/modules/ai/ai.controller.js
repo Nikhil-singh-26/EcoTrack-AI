@@ -1,5 +1,6 @@
 const EnergyReading = require('../../models/EnergyReading');
 const Device = require('../../models/Device');
+const { getEnergyContext, callAI } = require('../../services/aiCopilot.service');
 
 /**
  * @desc    AI Energy Copilot (Rule-based)
@@ -29,34 +30,41 @@ exports.askEnergyCopilot = async (req, res) => {
     const totalKwh = readings.reduce((sum, r) => sum + r.consumption, 0);
     const avgDailyKwh = totalKwh / 30;
     
-    // Logic for Rule-based intelligence
-    let answer = "";
-    let tips = [];
+    // 2. Gather context
+    const context = await getEnergyContext(userId);
 
-    if (q.includes("reduce") || q.includes("lower") || q.includes("bill")) {
-      answer = `Based on your usage of ${totalKwh.toFixed(2)} kWh this month, you can save approximately ${(totalKwh * 0.15).toFixed(2)} kWh by optimizing your peak usage.`;
-      tips = [
-        "Unplug devices not in use (phantom load).",
-        "Switch to LED bulbs to reduce lighting consumption by 75%.",
-        "Maintain AC temperature at 24°C for high efficiency."
-      ];
-    } else if (q.includes("high") || q.includes("spike") || q.includes("why")) {
-      const highUsageDevice = devices.sort((a,b) => b.powerRating - a.powerRating)[0];
-      answer = `I detected that your ${highUsageDevice?.name || 'heavy appliances'} are contributing most to your footprint. Spikes usually occur during evening hours (6 PM - 10 PM).`;
-      tips = [
-        "Move high-power tasks (laundry, dishwashing) to morning hours.",
-        "Check if any appliance is overheating, as it consumes more power.",
-        "Use smart plugs to schedule auto-turnoff for non-essential devices."
-      ];
-    } else if (q.includes("time") || q.includes("run")) {
-      answer = "The best time to run heavy appliances is between 10 AM and 4 PM when grid load is usually lower or solar generation is peak.";
-      tips = [
-        "Avoid using high-wattage devices during peak transition (7 AM - 9 AM).",
-        "Run your dishwasher or washing machine on a full load after 10 PM."
-      ];
-    } else {
-      answer = "I'm your EcoTrack Copilot. I can analyze your energy patterns, suggest savings, and identify why your bills might be rising. Try asking 'Why is my usage high?'";
-      tips = ["Use the dashboard to track real-time spikes.", "Compare your score on the leaderboard."];
+    // 3. Query AI (LLM)
+    try {
+      const result = await callAI(context, question);
+      return res.json({
+        success: true,
+        answer: result.answer,
+        tips: result.tips || []
+      });
+    } catch (llmError) {
+      console.warn("LLM Failed, falling back to Rules Engine:", llmError.message);
+      
+      const q = question.toLowerCase();
+      let answer = "";
+      let tips = [];
+
+      if (q.includes("reduce") || q.includes("lower") || q.includes("bill") || q.includes("save")) {
+        answer = `Based on your usage of ${totalKwh.toFixed(2)} kWh this month, you can save approximately ${(totalKwh * 0.15).toFixed(2)} kWh by optimizing your peak usage.`;
+        tips = ["Unplug standby devices.", "Switch to LEDs.", "Keep AC at 24°C."];
+      } else if (q.includes("high") || q.includes("spike") || q.includes("bijli") || q.includes("usage")) {
+        const highUsageDevice = devices.sort((a,b) => b.powerRating - a.powerRating)[0];
+        answer = `Your ${highUsageDevice?.name || 'heavy appliances'} like AC or Water Heater are your top consumers. You currently have ${devices.filter(d => d.status === 'on').length} devices active.`;
+        tips = ["Run heavy tasks in morning.", "Check for overheating.", "Use smart schedules."];
+      } else {
+        answer = `I am analyzing your ${devices.length} devices. Your total footprint is ${totalKwh.toFixed(2)} kWh. Try asking 'Why is my bill high?' or 'Which device uses most power?'`;
+        tips = ["Use the dashboard to track spikes.", "Check your high-energy devices."];
+      }
+
+      return res.json({
+        success: true,
+        answer,
+        tips
+      });
     }
 
     res.json({
