@@ -12,7 +12,7 @@ const getRealTimeData = async (req, res) => {
     
     // Get latest reading from each device
     const readings = await EnergyReading.aggregate([
-      { $match: { userId: mongoose.Types.ObjectId(userId) } },
+      { $match: { userId: new mongoose.Types.ObjectId(userId) } },
       { $sort: { timestamp: -1 } },
       {
         $group: {
@@ -77,7 +77,7 @@ const getChartData = async (req, res) => {
     const data = await EnergyReading.aggregate([
       {
         $match: {
-          userId: mongoose.Types.ObjectId(userId),
+          userId: new mongoose.Types.ObjectId(userId),
           timestamp: { $gte: dateRange }
         }
       },
@@ -116,7 +116,7 @@ const predictBill = async (req, res) => {
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     
     const readings = await EnergyReading.find({
-      userId,
+      userId: new mongoose.Types.ObjectId(userId),
       timestamp: { $gte: thirtyDaysAgo }
     }).sort({ timestamp: 1 });
     
@@ -202,7 +202,7 @@ const getCarbonFootprint = async (req, res) => {
     }
     
     const readings = await EnergyReading.find({
-      userId,
+      userId: new mongoose.Types.ObjectId(userId),
       timestamp: { $gte: startDate }
     });
     
