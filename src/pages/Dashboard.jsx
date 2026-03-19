@@ -197,24 +197,7 @@ const Dashboard = () => {
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-             <div className="card">
-                <h3 className="text-lg font-bold mb-4">Daily Efficiency Comparison</h3>
-                <div className="h-[200px]">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={chartData.slice(-5)}>
-                            <XAxis dataKey="name" axisLine={false} tickLine={false} />
-                            <Tooltip cursor={{fill: 'transparent'}} />
-                            <Bar dataKey="usage" radius={[4, 4, 0, 0]}>
-                                {chartData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={entry.usage > 5 ? '#ef4444' : '#2563eb'} />
-                                ))}
-                            </Bar>
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
-             </div>
-             
-             <div className="card bg-gradient-to-br from-primary-600 to-indigo-700 text-white p-6 border-none">
+             <div className="card bg-gradient-to-br from-primary-600 to-indigo-700 text-white p-6 border-none flex flex-col justify-between">
                 <div className="flex justify-between items-start">
                     <div>
                         <h4 className="text-white/80 font-medium">Unlocked Badges</h4>
